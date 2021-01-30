@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<context:property-placeholder
+		location="classpath:db.properties" />
+	<context:property-placeholder
+		location="classpath:log4j.properties" />
+	<context:component-scan base-package="com.clive"></context:component-scan>
+	
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	<bean id="jdbcTemplate"
+		class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<!-- 通过spring的申明式事务管理 我们来配置事务的隔离级别和传播行为
+	     1.事物的隔离级别和传播行为是由一个事务管理器来管理
+	            先在spring 的ioc里面有一个事务管理器对象 需要加载一个数据库连接池
+	 -->
+	 <!-- 创建一个spring的事务管理器对象来管理事务的隔离级别和传播行为 -->
+	<bean id="transactionMannager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 开启注解模式 -->
+	<tx:annotation-driven transaction-manager="transactionMannager"/>
+  <!--  2.配置service类里面的方法 遵循那个隔离级别和传播行为 配置规则  -->
+	<!-- <tx:advice id="transferdvice"
+		transaction-manager="transactionMannager">
+		<tx:attributes>
+			<tx:method name="transfer" isolation="DEFAULT" />
+		</tx:attributes>
+	</tx:advice>
+	配置一个切面类 告诉我们的事务管理器 这个规则的作用方位
+	<aop:config>
+		<aop:advisor
+			pointcut="execution(* *..*.*ServiceImpl.transfer(..))"
+			advice-ref="transferdvice" />
+	</aop:config> -->
+
+</beans>
